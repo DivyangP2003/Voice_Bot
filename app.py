@@ -14,9 +14,6 @@ GROQ_API_KEY = "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"
 GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions"
 MODEL = "llama-3.3-70b-versatile"
 
-if "conversation_history" not in st.session_state:
-    st.session_state.conversation_history = []
-
 # Load Whisper Model (loads once)
 @st.cache_resource
 def load_whisper_model():
@@ -45,33 +42,18 @@ def transcribe_audio_faster_whisper(audio_bytes):
     return transcription
 
 def generate_response_groq(question, resume_text):
-    # Build full conversation with resume as context
-    messages = [{"role": "system", "content": f"You are the person described in the following resume:\n{resume_text}"}]
-    
-    # Add previous interactions
-    messages.extend(st.session_state.conversation_history)
-    
-    # Add the new user question
-    messages.append({"role": "user", "content": question})
-
+    prompt = f"""You are the person described in the following resume text:\n\n{resume_text}\n\nAnswer this question in first person:\n\n{question}"""
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
         "Content-Type": "application/json"
     }
     data = {
         "model": MODEL,
-        "messages": messages,
+        "messages": [{"role": "user", "content": prompt}],
     }
     response = requests.post(GROQ_CHAT_URL, headers=headers, json=data)
     response.raise_for_status()
-    reply = response.json()['choices'][0]['message']['content'].strip()
-
-    # Update the conversation history
-    st.session_state.conversation_history.append({"role": "user", "content": question})
-    st.session_state.conversation_history.append({"role": "assistant", "content": reply})
-
-    return reply
-
+    return response.json()['choices'][0]['message']['content'].strip()
 
 def synthesize_tts_file(text, description=None, fmt="wav"):
     headers = {
@@ -97,12 +79,6 @@ with st.sidebar:
 
 st.subheader("🎤 Record Your Question")
 audio_bytes = st_audiorec()
-
-st.markdown("### 🗨 Conversation History:")
-for msg in st.session_state.conversation_history:
-    role = "🧑 You" if msg["role"] == "user" else "🤖 Bot"
-    st.markdown(f"**{role}:** {msg['content']}")
-
 
 if audio_bytes is not None:
     st.audio(audio_bytes, format="audio/wav")

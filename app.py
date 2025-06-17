@@ -1,106 +1,57 @@
 import streamlit as st
-st.set_page_config(page_title="Voice Bot with Groq + Hume", layout="centered")
-
-import PyPDF2
-import requests
-import tempfile
 from st_audiorec import st_audiorec
 from faster_whisper import WhisperModel
+from gtts import gTTS
+import openai
+import tempfile
 
-# --- API Keys from secrets ---
-GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
-HUME_API_KEY = st.secrets["HUME_API_KEY"]
+# ---- CONFIG ----
+openai.api_key = st.secrets["api_keys"]["openai_key"]
 
-# --- Constants ---
-GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions"
-MODEL = "llama-3-70b-8192"  # or "llama-3-8b-8192"
-
-# Load Whisper Model
 @st.cache_resource
-def load_whisper_model():
-    return WhisperModel("base", device="cpu")  # Use "cuda" if GPU is available
+def load_whisper():
+    return WhisperModel("base", device="cpu")
 
-whisper_model = load_whisper_model()
+whisper_model = load_whisper()
 
-st.title("🎙 Personalized Voice Bot (Groq + Hume AI)")
+# ---- UI ----
+st.set_page_config(page_title="Free Voice Bot", layout="centered")
+st.title("🎙️ Free Voice Bot (Whisper + GPT + gTTS)")
 
-# --- Functions ---
-def extract_pdf_text(file):
-    pdf_reader = PyPDF2.PdfReader(file)
-    return "\n".join(p.extract_text() for p in pdf_reader.pages if p.extract_text()).strip()
+# ---- RECORD AUDIO ----
+st.subheader("1. Record Your Question")
+audio = st_audiorec()
 
-def transcribe_audio(audio_bytes):
-    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmpfile:
-        tmpfile.write(audio_bytes)
-        tmpfile.flush()
-        segments, _ = whisper_model.transcribe(tmpfile.name)
-    return " ".join(segment.text for segment in segments)
+if audio:
+    st.audio(audio, format="audio/wav")
 
-def generate_response_groq(question, resume_text):
-    prompt = f"""
-You are a helpful assistant.
+    with st.spinner("Transcribing..."):
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
+            f.write(audio)
+            f.flush()
+            segments, _ = whisper_model.transcribe(f.name)
+            transcription = " ".join(seg.text for seg in segments)
 
-If the user's question is related to the resume below, answer as the person in the resume using first person.
+    st.success(f"📝 Transcribed: {transcription}")
 
-If the question is general and not related to the resume, answer helpfully and factually as yourself.
+    # ---- GPT-3.5 RESPONSE ----
+    with st.spinner("Generating response..."):
+        prompt = f"Answer this question helpfully: {transcription}"
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        reply = response.choices[0].message.content.strip()
 
-Resume:
-{resume_text}
+    st.success("✅ Response generated!")
+    st.markdown(f"**🗣 Answer:** {reply}")
 
-Question:
-{question}
-"""
-    headers = {
-        "Authorization": f"Bearer {GROQ_API_KEY}",
-        "Content-Type": "application/json"
-    }
-    data = {
-        "model": MODEL,
-        "messages": [{"role": "user", "content": prompt}]
-    }
-    response = requests.post(GROQ_CHAT_URL, headers=headers, json=data)
-    response.raise_for_status()
-    return response.json()["choices"][0]["message"]["content"].strip()
+    # ---- TEXT TO SPEECH (gTTS) ----
+    with st.spinner("Synthesizing speech..."):
+        tts = gTTS(reply)
+        audio_path = "response.mp3"
+        tts.save(audio_path)
+        audio_file = open(audio_path, "rb").read()
+    st.audio(audio_file, format="audio/mp3")
 
-def synthesize_tts(text, description="friendly", fmt="wav"):
-    headers = {
-        "X-Hume-Api-Key": HUME_API_KEY,
-        "Content-Type": "application/json"
-    }
-    body = {
-        "utterances": [{"text": text, "description": description}],
-        "format": {"type": fmt}
-    }
-    resp = requests.post("https://api.hume.ai/v0/tts/file", headers=headers, json=body)
-    resp.raise_for_status()
-    return resp.content
-
-# --- UI ---
-with st.sidebar:
-    st.header("📄 Upload Resume (PDF)")
-    pdf_file = st.file_uploader("Choose a PDF", type="pdf")
-    resume_text = extract_pdf_text(pdf_file) if pdf_file else ""
-
-st.subheader("🎤 Record Your Question")
-audio_bytes = st_audiorec()
-
-if audio_bytes:
-    st.audio(audio_bytes, format="audio/wav")
-
-    if resume_text:
-        with st.spinner("🧠 Transcribing..."):
-            transcription = transcribe_audio(audio_bytes)
-        st.success(f"📝 Transcription: {transcription}")
-
-        with st.spinner("💬 Generating reply..."):
-            reply = generate_response_groq(transcription, resume_text)
-        st.success("✅ Response ready!")
-        st.markdown(f"**🗣 Answer:** {reply}")
-
-        with st.spinner("🔊 Generating voice..."):
-            audio_response = synthesize_tts(reply)
-        st.audio(audio_response, format="audio/wav")
-    else:
-        st.warning("Please upload your resume first.")
-
-st.caption("Powered by Groq (LLM), Hume AI (TTS), and faster-whisper (STT)")
+st.caption("Uses Whisper for STT, GPT-3.5 for reply, and gTTS for speech output.")

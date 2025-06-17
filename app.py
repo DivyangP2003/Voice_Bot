@@ -68,7 +68,7 @@ if audio_bytes is not None:
             messages = [{"role": "system", "content": f"You are the person described in the following resume:\n{resume_text}"}]
             messages.extend(st.session_state.conversation_history)
             messages.append({"role": "user", "content": question})
-
+        
             headers = {
                 "Authorization": f"Bearer {GROQ_API_KEY}",
                 "Content-Type": "application/json"
@@ -77,14 +77,21 @@ if audio_bytes is not None:
                 "model": MODEL,
                 "messages": messages,
             }
+        
             response = requests.post(GROQ_CHAT_URL, headers=headers, json=data)
-            response.raise_for_status()
+        
+            # DEBUG: Show error content if it fails
+            if response.status_code != 200:
+                st.error(f"❌ API Error {response.status_code}")
+                st.code(response.text, language="json")
+                response.raise_for_status()
+        
             reply = response.json()['choices'][0]['message']['content'].strip()
-
+        
             # Save conversation history
             st.session_state.conversation_history.append({"role": "user", "content": question})
             st.session_state.conversation_history.append({"role": "assistant", "content": reply})
-
+        
             return reply
 
         with st.spinner("Generating personalized response with Groq..."):

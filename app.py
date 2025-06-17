@@ -98,6 +98,12 @@ with st.sidebar:
 st.subheader("🎤 Record Your Question")
 audio_bytes = st_audiorec()
 
+st.markdown("### 🗨 Conversation History:")
+for msg in st.session_state.conversation_history:
+    role = "🧑 You" if msg["role"] == "user" else "🤖 Bot"
+    st.markdown(f"**{role}:** {msg['content']}")
+
+
 if audio_bytes is not None:
     st.audio(audio_bytes, format="audio/wav")
 

@@ -40,8 +40,16 @@ def transcribe_audio_faster_whisper(audio_bytes):
         transcription = " ".join(segment.text for segment in segments)
     return transcription
 
-def is_resume_related(question):
-    prompt = f"""Classify whether the following question is related to personal details like resume, job history, education, skills, etc., or if it's a general knowledge question. Return only 'resume' or 'general'.\n\nQuestion: {question}"""
+def is_document_related(question):
+    prompt = f"""You are a classification assistant. Determine if the user's question relates to the content of a provided document (e.g., resume, report, article, book, etc.) or if it's a general knowledge question unrelated to the document.
+
+Examples:
+- "Tell me about yourself" → likely document-related (if the doc is a resume)
+- "What is the capital of France?" → general knowledge
+
+Your task: Return only one word — either "document" or "general".
+
+Question: {question}"""
 
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
@@ -59,7 +67,7 @@ def is_resume_related(question):
     response.raise_for_status()
 
     classification = response.json()['choices'][0]['message']['content'].strip().lower()
-    return classification == "resume"
+    return classification == "document"
 
 def generate_response_groq_direct(prompt):
     headers = {

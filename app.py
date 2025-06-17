@@ -1,4 +1,8 @@
 import streamlit as st
+
+# ✅ MUST BE FIRST STREAMLIT COMMAND
+st.set_page_config(page_title="Free Voice Bot", layout="centered")
+
 from st_audiorec import st_audiorec
 from faster_whisper import WhisperModel
 from gtts import gTTS
@@ -15,7 +19,6 @@ def load_whisper():
 whisper_model = load_whisper()
 
 # ---- UI ----
-st.set_page_config(page_title="Free Voice Bot", layout="centered")
 st.title("🎙️ Free Voice Bot (Whisper + GPT + gTTS)")
 
 # ---- RECORD AUDIO ----

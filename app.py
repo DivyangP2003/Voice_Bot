@@ -42,7 +42,7 @@ def transcribe_audio_faster_whisper(audio_bytes):
     return transcription
 
 def generate_response_groq(question, resume_text):
-    prompt = f"""You are the person described in the following resume text:\n\n{resume_text}\n\nAnswer this question in first person:\n\n{question}"""
+    prompt = f"""You are the person described in the following resume text:\n\n{resume_text}\n\nAnswer the question briefly and concisely in first person. Keep your response under 200 words\n\n{question}"""
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
         "Content-Type": "application/json"
@@ -50,6 +50,8 @@ def generate_response_groq(question, resume_text):
     data = {
         "model": MODEL,
         "messages": [{"role": "user", "content": prompt}],
+        "max_tokens": 150,
+        "temperature": 0.5
     }
     response = requests.post(GROQ_CHAT_URL, headers=headers, json=data)
     response.raise_for_status()

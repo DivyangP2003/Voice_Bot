@@ -4,6 +4,7 @@ st.set_page_config(page_title="🎙 Voice Bot", layout="centered")
 import PyPDF2
 import requests
 import tempfile
+import base64
 from st_audiorec import st_audiorec
 from faster_whisper import WhisperModel
 
@@ -40,35 +41,6 @@ def transcribe_audio_faster_whisper(audio_bytes):
         transcription = " ".join(segment.text for segment in segments)
     return transcription
 
-def is_document_related(question):
-    prompt = f"""You are a classification assistant. Determine if the user's question relates to the content of a provided document (e.g., resume, report, article, book, etc.) or if it's a general knowledge question unrelated to the document.
-
-Examples:
-- "Tell me about yourself" → likely document-related (if the doc is a resume)
-- "What is the capital of France?" → general knowledge
-
-Your task: Return only one word — either "document" or "general".
-
-Question: {question}"""
-
-    headers = {
-        "Authorization": f"Bearer {GROQ_API_KEY}",
-        "Content-Type": "application/json"
-    }
-
-    data = {
-        "model": MODEL,
-        "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 10,
-        "temperature": 0.1
-    }
-
-    response = requests.post(GROQ_CHAT_URL, headers=headers, json=data)
-    response.raise_for_status()
-
-    classification = response.json()['choices'][0]['message']['content'].strip().lower()
-    return classification == "document"
-
 def generate_response_groq_direct(prompt):
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
@@ -82,10 +54,13 @@ def generate_response_groq_direct(prompt):
         "temperature": 0.5
     }
 
-    response = requests.post(GROQ_CHAT_URL, headers=headers, json=data)
-    response.raise_for_status()
-
-    return response.json()['choices'][0]['message']['content'].strip()
+    try:
+        response = requests.post(GROQ_CHAT_URL, headers=headers, json=data)
+        response.raise_for_status()
+        return response.json()['choices'][0]['message']['content'].strip()
+    except Exception as e:
+        st.error("⚠️ Error generating response from Groq.")
+        st.stop()
 
 def synthesize_tts_file(text, description=None, fmt="wav"):
     headers = {
@@ -112,6 +87,27 @@ def synthesize_tts_file(text, description=None, fmt="wav"):
         st.error(f"Unexpected TTS error: {e}")
         st.stop()
 
+def autoplay_audio_bytes(audio_bytes):
+    # Create a temporary file to hold the audio
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmpfile:
+        tmpfile.write(audio_bytes)
+        tmpfile_path = tmpfile.name
+
+    # Read and encode the file
+    with open(tmpfile_path, "rb") as f:
+        data = f.read()
+        b64 = base64.b64encode(data).decode()
+        md = f"""
+            <audio controls autoplay="true">
+              <source src="data:audio/wav;base64,{b64}" type="audio/wav">
+              Your browser does not support the audio element.
+            </audio>
+        """
+        st.markdown(md, unsafe_allow_html=True)
+
+    import os
+    os.unlink(tmpfile_path)  # Clean up temp file
+
 # APP UI
 with st.sidebar:
     st.header("📄 Upload Document (PDF)")
@@ -125,8 +121,6 @@ st.subheader("🎤 Record Your Question")
 audio_bytes = st_audiorec()
 
 if audio_bytes is not None:
-    st.audio(audio_bytes, format="audio/wav")
-
     if not resume_text:
         st.warning("Please upload your document PDF first.")
         st.stop()
@@ -135,18 +129,35 @@ if audio_bytes is not None:
         transcription = transcribe_audio_faster_whisper(audio_bytes)
     st.success(f"📝 Transcription: {transcription}")
 
-    if is_document_related(transcription):
-        prompt = f"""You are described in the following document:\n\n{resume_text}\n\nAnswer the question briefly and concisely in first person.\n\nQuestion: {transcription}"""
-    else:
-        prompt = f"""Answer the following question in a concise and factual manner:\n\n{transcription}"""
+    # --- SINGLE PROMPT FOR BOTH INTENT & RESPONSE ---
+    prompt = f"""You are a voice assistant that can either:
+    - Act as the person described in the uploaded document (resume, report, etc.)
+    - Or answer general knowledge questions directly
 
-    with st.spinner("Generating response..."):
+    First, determine if the question relates to the document content or is general.
+    Then, respond accordingly:
+    - If document-related: Answer as if you are the person described in the document.
+    - If general: Provide a concise factual answer.
+
+    Keep your final answer under 150 words.
+
+    Document:\n\n{resume_text}\n
+
+    Question: {transcription}
+    """
+
+    with st.spinner("Generating response with Groq..."):
         reply = generate_response_groq_direct(prompt)
+
     st.success("✅ Response generated")
-    st.markdown(f"🗣 Response: {reply}")
+
+    with st.container():
+        st.markdown("### 🗣 Response")
+        st.markdown(f"<div style='font-size:20px; padding:10px;'>{reply}</div>", unsafe_allow_html=True)
 
     with st.spinner("Synthesizing speech with Hume AI..."):
         audio_response = synthesize_tts_file(reply, description="clear and natural tone", fmt="wav")
-    st.audio(audio_response, format="audio/wav")
+
+    autoplay_audio_bytes(audio_response)
 
 st.caption("Powered by Hume AI (TTS), faster-whisper (STT), and Groq (LLMs).")

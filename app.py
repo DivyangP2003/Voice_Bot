@@ -1,60 +1,107 @@
 import streamlit as st
-
-# ✅ MUST BE FIRST STREAMLIT COMMAND
-st.set_page_config(page_title="Free Voice Bot", layout="centered")
-
+st.set_page_config(page_title="Voice Bot with Together AI + Hume", layout="centered")
+import PyPDF2
+import requests
+import tempfile
 from st_audiorec import st_audiorec
 from faster_whisper import WhisperModel
-from gtts import gTTS
-import openai
-import tempfile
 
 # ---- CONFIG ----
-openai.api_key = st.secrets["api_keys"]["openai_key"]
+HUME_API_KEY = st.secrets["HUME_API_KEY"]
+TOGETHER_API_KEY = st.secrets["TOGETHER_API_KEY"]
+MODEL = "meta-llama/Llama-3-8b-chat-hf"
 
+# Load Whisper Model (loads once)
 @st.cache_resource
-def load_whisper():
-    return WhisperModel("base", device="cpu")
+def load_whisper_model():
+    return WhisperModel("base", device="cpu")  # Use "cuda" for GPU if available
 
-whisper_model = load_whisper()
+whisper_model = load_whisper_model()
 
-# ---- UI ----
-st.title("🎙️ Free Voice Bot (Whisper + GPT + gTTS)")
+st.title("🎙 Personalized Voice Bot (Together AI + Hume AI)")
 
-# ---- RECORD AUDIO ----
-st.subheader("1. Record Your Question")
-audio = st_audiorec()
+# FUNCTIONS
+def extract_pdf_text(file):
+    pdf_reader = PyPDF2.PdfReader(file)
+    text = ""
+    for page in pdf_reader.pages:
+        page_text = page.extract_text()
+        if page_text:
+            text += page_text + "\n"
+    return text.strip()
 
-if audio:
-    st.audio(audio, format="audio/wav")
+def transcribe_audio_faster_whisper(audio_bytes):
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmpfile:
+        tmpfile.write(audio_bytes)
+        tmpfile.flush()
+        segments, _ = whisper_model.transcribe(tmpfile.name)
+        transcription = " ".join(segment.text for segment in segments)
+    return transcription
 
-    with st.spinner("Transcribing..."):
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
-            f.write(audio)
-            f.flush()
-            segments, _ = whisper_model.transcribe(f.name)
-            transcription = " ".join(seg.text for seg in segments)
+def generate_response_together(question, resume_text):
+    headers = {
+        "Authorization": f"Bearer {TOGETHER_API_KEY}",
+        "Content-Type": "application/json"
+    }
 
-    st.success(f"📝 Transcribed: {transcription}")
+    prompt = f"""You are the person described in the following resume text:\n\n{resume_text}\n\nAnswer this question in first person:\n\n{question}"""
 
-    # ---- GPT-3.5 RESPONSE ----
-    with st.spinner("Generating response..."):
-        prompt = f"Answer this question helpfully: {transcription}"
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}]
-        )
-        reply = response.choices[0].message.content.strip()
+    data = {
+        "model": MODEL,
+        "prompt": prompt,
+        "max_tokens": 200,
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "repetition_penalty": 1.1
+    }
 
-    st.success("✅ Response generated!")
-    st.markdown(f"**🗣 Answer:** {reply}")
+    response = requests.post("https://api.together.xyz/v1/completions",  headers=headers, json=data)
+    response.raise_for_status()
 
-    # ---- TEXT TO SPEECH (gTTS) ----
-    with st.spinner("Synthesizing speech..."):
-        tts = gTTS(reply)
-        audio_path = "response.mp3"
-        tts.save(audio_path)
-        audio_file = open(audio_path, "rb").read()
-    st.audio(audio_file, format="audio/mp3")
+    return response.json()['choices'][0]['text'].strip()
 
-st.caption("Uses Whisper for STT, GPT-3.5 for reply, and gTTS for speech output.")
+def synthesize_tts_file(text, description=None, fmt="wav"):
+    headers = {
+        "X-Hume-Api-Key": HUME_API_KEY,
+        "Content-Type": "application/json"
+    }
+    body = {
+        "utterances": [{"text": text, **({"description": description} if description else {})}],
+        "format": {"type": fmt}
+    }
+    resp = requests.post("https://api.hume.ai/v0/tts/file",  headers=headers, json=body)
+    resp.raise_for_status()
+    return resp.content  # raw audio bytes
+
+# APP UI
+with st.sidebar:
+    st.header("📄 Upload Resume (PDF)")
+    pdf_file = st.file_uploader("Choose a PDF", type="pdf")
+    resume_text = ""
+    if pdf_file:
+        resume_text = extract_pdf_text(pdf_file)
+        st.success("Resume uploaded and extracted!")
+
+st.subheader("🎤 Record Your Question")
+audio_bytes = st_audiorec()
+
+if audio_bytes is not None:
+    st.audio(audio_bytes, format="audio/wav")
+
+    if resume_text:
+        with st.spinner("Transcribing audio locally with faster-whisper..."):
+            transcription = transcribe_audio_faster_whisper(audio_bytes)
+        st.success(f"📝 Transcription: {transcription}")
+
+        with st.spinner("Generating personalized response with Together AI..."):
+            reply = generate_response_together(transcription, resume_text)
+        st.success("✅ Response generated")
+        st.markdown(f"**🗣 Response:** {reply}")
+
+        with st.spinner("Synthesizing speech with Hume AI..."):
+            audio_response = synthesize_tts_file(reply, description="friendly conversational tone", fmt="wav")
+        st.audio(audio_response, format="audio/wav")
+    else:
+        st.warning("Please upload your resume PDF first.")
+
+st.caption("Powered by Hume AI (TTS), faster-whisper (STT), and Together AI (LLMs).")

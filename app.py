@@ -1,27 +1,26 @@
-
 import streamlit as st
-st.set_page_config(page_title="Voice Bot with Groq + Hume", layout="centered")
+st.set_page_config(page_title="Voice Bot with Gemini + Hume", layout="centered")
+
 import PyPDF2
 import requests
 import tempfile
-import base64
 from st_audiorec import st_audiorec
 from faster_whisper import WhisperModel
+import google.generativeai as genai
 
 # ---- CONFIG ----
-HUME_API_KEY = "KaiGK9GN7dtQ6dDCv8WqpaMKEoPzQlT9lV66ebfVnPMmMkJL"
-GROQ_API_KEY = "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"
-GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions"
-MODEL = "llama-3.3-70b-versatile"
+HUME_API_KEY = st.secrets["HUME_API_KEY"]
+GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
+genai.configure(api_key=GEMINI_API_KEY)
 
-# Load Whisper Model (loads once)
+# Load Whisper Model
 @st.cache_resource
 def load_whisper_model():
     return WhisperModel("base", device="cpu")  # Use "cuda" for GPU if available
 
 whisper_model = load_whisper_model()
 
-st.title("🎙 Personalized Voice Bot (Groq + Hume AI)")
+st.title("🎙 Personalized Voice Bot (Gemini + Hume AI)")
 
 # FUNCTIONS
 def extract_pdf_text(file):
@@ -41,35 +40,23 @@ def transcribe_audio_faster_whisper(audio_bytes):
         transcription = " ".join(segment.text for segment in segments)
     return transcription
 
-def generate_response_groq(question, resume_text):
+def generate_response_gemini(question, resume_text):
+    model = genai.GenerativeModel('gemini-pro')
     prompt = f"""
 You are a helpful assistant.
 
-Determine if the following question is about the person described in this resume:
+If the question below is about the person described in the resume, respond as that person in the first person.
+
+If the question is general (not related to the resume), answer it factually and helpfully without referencing the resume.
 
 Resume:
 {resume_text}
 
 Question:
 {question}
-
-If the question is about the resume (e.g., work experience, skills, background), answer as if you are that person using first-person tone.
-
-If the question is general knowledge (e.g., unrelated to the resume), just answer it factually and helpfully without referring to the resume.
-
-Answer:
 """
-    headers = {
-        "Authorization": f"Bearer {GROQ_API_KEY}",
-        "Content-Type": "application/json"
-    }
-    data = {
-        "model": MODEL,
-        "messages": [{"role": "user", "content": prompt}],
-    }
-    response = requests.post(GROQ_CHAT_URL, headers=headers, json=data)
-    response.raise_for_status()
-    return response.json()['choices'][0]['message']['content'].strip()
+    response = model.generate_content(prompt)
+    return response.text.strip()
 
 def synthesize_tts_file(text, description=None, fmt="wav"):
     headers = {
@@ -82,7 +69,7 @@ def synthesize_tts_file(text, description=None, fmt="wav"):
     }
     resp = requests.post("https://api.hume.ai/v0/tts/file", headers=headers, json=body)
     resp.raise_for_status()
-    return resp.content  # raw audio bytes
+    return resp.content
 
 # APP UI
 with st.sidebar:
@@ -104,8 +91,8 @@ if audio_bytes is not None:
             transcription = transcribe_audio_faster_whisper(audio_bytes)
         st.success(f"📝 Transcription: {transcription}")
 
-        with st.spinner("Generating personalized response with Groq..."):
-            reply = generate_response_groq(transcription, resume_text)
+        with st.spinner("Generating smart response with Gemini..."):
+            reply = generate_response_gemini(transcription, resume_text)
         st.success("✅ Response generated")
         st.markdown(f"**🗣 Response:** {reply}")
 
@@ -115,4 +102,4 @@ if audio_bytes is not None:
     else:
         st.warning("Please upload your resume PDF first.")
 
-st.caption("Powered by Hume AI (TTS), faster-whisper (STT), and Groq (LLMs).")
+st.caption("Powered by Gemini (LLM), faster-whisper (STT), and Hume AI (TTS).")

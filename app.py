@@ -49,8 +49,8 @@ def generate_response_together(question, resume_text):
     data = {
         "model": MODEL,
         "prompt": prompt,
-        "max_tokens": 200,
-        "temperature": 0.7,
+        "max_tokens": 100,
+        "temperature": 0.4,
         "top_p": 0.9,
         "repetition_penalty": 1.1
     }

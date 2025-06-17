@@ -114,12 +114,12 @@ def synthesize_tts_file(text, description=None, fmt="wav"):
 
 # APP UI
 with st.sidebar:
-    st.header("📄 Upload Resume (PDF)")
+    st.header("📄 Upload Document (PDF)")
     pdf_file = st.file_uploader("Choose a PDF", type="pdf")
     resume_text = ""
     if pdf_file:
         resume_text = extract_pdf_text(pdf_file)
-        st.success("Resume uploaded and extracted!")
+        st.success("Document uploaded and extracted!")
 
 st.subheader("🎤 Record Your Question")
 audio_bytes = st_audiorec()
@@ -128,15 +128,15 @@ if audio_bytes is not None:
     st.audio(audio_bytes, format="audio/wav")
 
     if not resume_text:
-        st.warning("Please upload your resume PDF first.")
+        st.warning("Please upload your document PDF first.")
         st.stop()
 
     with st.spinner("Transcribing audio locally with faster-whisper..."):
         transcription = transcribe_audio_faster_whisper(audio_bytes)
     st.success(f"📝 Transcription: {transcription}")
 
-    if is_resume_related(transcription):
-        prompt = f"""You are the person described in the following resume text:\n\n{resume_text}\n\nAnswer the question briefly and concisely in first person.\n\nQuestion: {transcription}"""
+    if is_document_related(transcription):
+        prompt = f"""You are described in the following document:\n\n{resume_text}\n\nAnswer the question briefly and concisely in first person.\n\nQuestion: {transcription}"""
     else:
         prompt = f"""Answer the following question in a concise and factual manner:\n\n{transcription}"""
 

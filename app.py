@@ -42,7 +42,23 @@ def transcribe_audio_faster_whisper(audio_bytes):
     return transcription
 
 def generate_response_groq(question, resume_text):
-    prompt = f"""You are the person described in the following resume text:\n\n{resume_text}\n\nAnswer this question in first person:\n\n{question}"""
+    prompt = f"""
+You are a helpful assistant.
+
+Determine if the following question is about the person described in this resume:
+
+Resume:
+{resume_text}
+
+Question:
+{question}
+
+If the question is about the resume (e.g., work experience, skills, background), answer as if you are that person using first-person tone.
+
+If the question is general knowledge (e.g., unrelated to the resume), just answer it factually and helpfully without referring to the resume.
+
+Answer:
+"""
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
         "Content-Type": "application/json"

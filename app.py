@@ -74,10 +74,10 @@ groq_client = load_groq_client()
 
 # ---- TITLE ----
 st.title("## 🤖 EchoMind: Your Personal AI Voice Assistant")
-st.markdown("""
-Speak your question — whether it’s about your resume, achievements, or general knowledge —  
-**EchoMind** will listen, understand, and respond in your voice and tone.
-""")
+# st.markdown("""
+# Speak your question — whether it’s about your resume, achievements, or general knowledge —  
+# **EchoMind** will listen, understand, and respond in your voice and tone.
+# """)
 
 
 # ---- FUNCTIONS ----

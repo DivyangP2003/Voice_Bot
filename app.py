@@ -216,7 +216,7 @@ if audio_bytes is not None:
         st.warning("Please upload your document PDF first.")
         st.stop()
 
-    with st.spinner("🔍 Transcribing audio..."):
+    with st.spinner("🔍 Listening..."):
         transcription = transcribe_audio_faster_whisper(audio_bytes)
 
     st.markdown(f"""
@@ -244,10 +244,10 @@ if audio_bytes is not None:
     {transcription}
     """
 
-    with st.spinner("💡 Generating response..."):
+    with st.spinner("💡 Thinking..."):
         reply = generate_response_groq_direct(prompt)
 
-    st.markdown("## 🧠 Assistant’s Response")
+    st.markdown("## 🧠 EchoMind's Response")
     st.markdown(f"""
         <div class='custom-card'>
         {reply}

@@ -174,15 +174,21 @@ def autoplay_audio_bytes(audio_bytes):
         st.markdown(md, unsafe_allow_html=True)
     os.unlink(tmpfile_path)
 
-with st.sidebar:
-    st.markdown("## 📄 Upload PDF")
-    pdf_file = st.file_uploader("Upload a document (e.g. resume)", type="pdf")
-    resume_text = ""
-    if pdf_file:
-        resume_text = extract_pdf_text(pdf_file)
-        st.success("✅ Text extracted from PDF!")
+# ---- STATIC RESUME LOADING (FROM TXT FILE) ----
+RESUME_TXT_PATH = "assets/data.txt"
 
+@st.cache_data
+def load_resume_text():
+    with open(RESUME_TXT_PATH, "r", encoding="utf-8") as f:
+        return f.read().strip()
+
+resume_text = load_resume_text()
+
+# Sidebar update
+with st.sidebar:
+    st.markdown("✅ Using preloaded resume text file.")
     st.divider()
+
 
     # Voice is now hardcoded
     voice = "Mitch-PlayAI"

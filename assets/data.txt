@@ -1,56 +1,127 @@
-Divyang Deepak Palshetkar +91-9359849585
-Bachelor of Technology # palshetkar.1@iitj.ac.in
-Indian Institute of Technology Jodhpur # palshetkardivyang@gmail.com
-B21CI016 [Dept. Rank: 4] ï LinkedIn
-Education
-Degree Institute Board / University CGPA/Percentage Year
-B.Tech Indian Institute of Technology Jodhpur IIT JODHPUR 8.24 2025
-Senior Secondary Jaipuriar School, Navi Mumbai CBSE 94.6% 2019-20
-Matriculation Jindal Vidya Mandir, Salav CBSE 97.4% 2017-18
-Work Experience
-• AICOE Project, Ministry of Education May 2024 - July 2024
-Internship | Certificate IIT Jodhpur
-– Conducted an in-depth analysis of traffic patterns and vehicular movement across 16 strategic locations, processing 150+
-hours of real-time footage using TRAZER software. Extracted key metrics such as vehicle count, speed, lane discipline,
-and congestion trends to assess traffic flow efficiency.
-– Collaborated with teams to implement Generative AI-powered digital twin technology for infrastructure planning, improving
-decision-making by 40%
-– Integrated Generative Causal AI models with a web-based React & NodeJS application.
-• Jal Jeevan Mission, Ministry of Jal Shakti May 2024 - July 2024
-Internship | Certificate Rajasthan
-– Conducted water surveys and mapped 40+ dry borewells using GPS, QGIS, and Global Mapper to optimize groundwater
-recharge.Ensured compliance with environmental standards for sustainable water resource management.
-– Designed 3D filtration models and horizontal recharge techniques, improving groundwater replenishment efficiency by 30%
-– Developed REST APIs to integrate GIS data with an analytics dashboard.
-Projects
-• Inventory Optimization & Sales Analytics | Slooze Take-Home Challenge June 2025
-Python, Panda,Time-Series Analysis, Data Visualization Github
-– Developed an end-to-end data science pipeline to perform demand forecasting, inventory optimization (EOQ, reorder points),
-and ABC classification of SKUs.
-– Conducted exploratory data analysis on sales, purchase, and lead time data to uncover seasonal trends, top-performing
-products, and supplier performance insights.
-• AI-Powered Schedule Assistant Spet 2024
-React, NodeJS, ExpressJS, MongoDB, Llama3.2, Python
-– Developed a web application using the MERN stack, integrating LLAMA to generate personalized timetable schedules based
-on user preferences and tasks. .
-– The platform features user authentication (sign-in/sign-up), task and preference addition, dynamic timetable display, chatbot
-integration, and a scheduling assistant that allows users to modify their schedules using natural language prompts. Also
-implemented email-based task notification alerts.
-• Showroom Accounting Website Jun 2024
-React, NodeJS, ExpressJS, MongoDB
-– Developed an accounting website for a showroom with features like customer portfolio creation and display, customer and
-dealer payment tracking, expense management, and monthly profit analysis.
-– Created Price List section with easy product and its sub-products price search.
-– Implemented all CRUD operations and search functionalities wherever required.
-Skills
-• Technical: Python, R Language, Javascript, C, C++, HTML, CSS, React, SQL,Project Planning and Management
-• Framework and Tools: REST APIs, React, NodeJS, ExpressJS, MongoDB
-Positions of Responsibility
-• Festival Chief,Ganeshotsav ’24 IIT Jodhpur - Organized cultural events, leading a team of 200+ volunteers. 2024
-• Head,Public Relation Team, EDIFICIO 2023
-• Head,UDBHAAS Exhibtion 2022
-Miscellaneous
-• JEE-Advanced (2021),Qualified in top 1% among 1 million JEE aspirants 2021
-• District Topper, Class X 2018
-• Certificate of Merit from CBSE, for being in top 0.1 percent candidates of CBSE Board Exam 2017-18 2018
-• Rank-26, Maharashtra Talent Search Examination (MTSE) 2017
+
+Name: Divyang Deepak Palshetkar
+Email: palshetkar.1@iitj.ac.in | palshetkardivyang@gmail.com
+Phone: +91-9359849585
+LinkedIn: https://www.linkedin.com/in/divyang-palshetkar-11198a338/
+Graduation Year: 2025
+Department Rank: 4, IIT Jodhpur
+
+—— EDUCATION ——
+B.Tech from Indian Institute of Technology Jodhpur (2021–2025)
+- CGPA: 8.24 | Ranked 4th in the department
+
+Class 12th – Jaipuriar School, Navi Mumbai (CBSE): 94.6%
+Class 10th – Jindal Vidya Mandir, Salav (CBSE): 97.4%
+
+—— WORK EXPERIENCE ——
+AICOE Project – Ministry of Education, IIT Jodhpur (May–July 2024)
+- Analyzed traffic patterns from 150+ hours of real-time footage using TRAZER software.
+- Extracted key insights (speed, congestion, lane discipline) to guide urban planning.
+- Built a digital twin infrastructure model with Generative AI, improving planning decisions by 40%.
+- Integrated Causal AI models into a React/NodeJS dashboard for policy simulation.
+
+Jal Jeevan Mission – Ministry of Jal Shakti, Rajasthan (May–July 2024)
+- Conducted groundwater surveys and mapped 40+ dry borewells using GPS, QGIS, and Global Mapper.
+- Designed 3D water filtration and recharge systems, improving water efficiency by 30%.
+- Created REST APIs to link GIS datasets with an analytics dashboard.
+
+—— PROJECTS ——
+Inventory Optimization & Sales Analytics – Slooze Challenge
+- Built forecasting models, EOQ calculators, and ABC classification tools using Python & Pandas.
+- Analyzed supplier and seasonal sales data to guide inventory decisions.
+
+AI-Powered Scheduling Assistant (MERN + LLAMA 3.2)
+- Created a smart scheduling app that adapts to user preferences and tasks.
+- Features include NLP chatbot, task alerts via email, and drag-and-drop interfaces.
+
+Showroom Accounting Website (MERN Stack)
+- Developed a platform for managing showroom payments, customer records, and expenses.
+- Included CRUD operations, profit analysis, and intuitive search/filter capabilities.
+
+—— SKILLS ——
+Languages: Python, R, JavaScript, C, C++, HTML, CSS, SQL
+Frameworks/Tools: React, NodeJS, ExpressJS, MongoDB, REST APIs
+Domains: Data Science, Urban Analytics, Geospatial Systems, AI Integration
+Soft Skills: Leadership, Collaboration, Communication, Ownership
+
+—— LEADERSHIP & RESPONSIBILITY ——
+Festival Chief – Ganeshotsav 2024, IIT Jodhpur
+- Led a team of 200+ to organize campus-wide cultural events.
+
+Public Relations Head – EDIFICIO 2023
+- Managed outreach, branding, and industry coordination.
+
+Exhibition Head – UDBHAAS 2022
+- Directed technical exhibitions and mentored volunteers.
+
+—— ACHIEVEMENTS ——
+- Top 1% in JEE Advanced 2021 (among 1M+ students)
+- CBSE District Topper – Class X
+- CBSE National Merit (Top 0.1%) – Class X Board Exam
+- Rank 26 – Maharashtra Talent Search Exam (MTSE), 2017
+-Festival Chief – Ganeshotsav 2024, IIT Jodhpur and Led a team of 200+ to organize campus-wide cultural events.
+
+
+—— BEHAVIORAL INSIGHTS ——
+
+❓ What’s your #1 superpower?
+Answer:
+I’d say my superpower is bridging gaps — between people, between systems, and between ideas. Whether it’s translating technical work for non-technical teams, integrating AI with real-world urban challenges, or leading large events with diverse volunteers, I naturally step into roles where connection is missing. I enjoy bringing clarity to complexity and helping others move forward with confidence.
+
+❓ What are the top 3 areas you’d like to grow in?
+Answer:
+First, I want to sharpen my storytelling — turning technical insights into narratives that resonate with users, clients, or leadership.
+Second, I’m working on becoming more strategic in how I prioritize and scale projects — thinking beyond the build to the bigger picture.
+Third, I’d like to become more confident in navigating ambiguity, especially when stakes are high and outcomes are unclear. I’m learning to trust my judgment even when there’s no obvious answer.
+
+❓ What misconception do your coworkers have about you?
+Answer:
+People sometimes assume that because I’m quiet in meetings, I’m not engaged — but I’m actually processing everything and thinking deeply. When I do speak, I like to make sure it adds value. Over time, teams learn that I may not be the loudest voice, but I’ll be one of the most dependable when action is needed.
+
+❓ How do you push your boundaries and limits?
+Answer:
+I intentionally take on projects that feel just outside my comfort zone. For example, I once volunteered to present a technical solution to a government panel, even though I was nervous about public speaking. I prepared like crazy, sought feedback, and ended up not only delivering it well, but actually enjoying the process. For me, growth happens when discomfort meets commitment — and I try to lean into that combination regularly.
+
+
+I’m someone who enjoys building things that make life easier — whether that’s a smart dashboard for city planners or a clean system to manage a showroom’s finances. I’ve led events with over 200 people and I like that balance.
+
+People sometimes assume that because I’m quiet in meetings, I’m not engaged — but I’m actually processing everything and thinking deeply. When I do speak, I like to make sure it adds value. Over time, teams learn that I may not be the loudest voice, but I’ll be one of the most dependable when action is needed.
+
+What energizes me is meaningful collaboration: solving problems in ways that feel real and not just theoretical. What drains me is working without feedback or clarity. I'm a planner, but also adaptable when the situation calls for it.
+
+One of the habits that sets me apart is my tendency to reflect. After every project, I take time to review what worked, what didn’t, and how I can grow from it. It’s helped me stay grounded and keep improving.
+
+I’d say my #1 strength is being a connector — I bridge gaps between people, teams, and technologies. My teammates often tell me I bring calm in chaos and structure in ambiguity.
+
+I used to believe being productive meant saying yes to everything. Now I know focus is power. My biggest learning this year is that leadership isn’t about volume — it’s about clarity and empathy.
+
+When conflicts happen, I bring people back to shared goals. I’ve facilitated alignment sessions that turned tension into teamwork.
+
+Outside of work, I’m working on my storytelling — turning data into insight and insight into action. I want to grow into a role that blends strategy, engineering, and impact.
+
+Success for me is not just personal achievement, but helping others rise. I hope the legacy I leave in any team is one of momentum, kindness, and meaningful progress.
+
+SELF-AWARENESS & PERSONALITY
+- One thing I'm most proud of is building strong cross-cultural relationships on international projects by aligning goals across time zones and communication styles.
+- My best friend would describe me as: driven, thoughtful, and dependable.
+- I'm energized by solving problems with purpose-driven teams. I'm drained by prolonged ambiguity without feedback or progress.
+- People often misjudge my calm nature as passivity — but I speak clearly when it matters.
+- A habit that sets me apart: I reflect intentionally after projects, capturing lessons and improving continuously.
+- Success, to me, means growing while helping others grow — making impact without losing curiosity or integrity.
+- A piece of feedback that stayed with me: “You simplify complexity, but remember others need time to catch up.” That shaped how I tailor communication.
+- I used to value multitasking — now I value deep focus and time-blocking.
+
+GROWTH & REFLECTION
+-First, I want to sharpen my storytelling — turning technical insights into narratives that resonate with users, clients, or leadership.
+Second, I’m working on becoming more strategic in how I prioritize and scale projects — thinking beyond the build to the bigger picture.
+Third, I’d like to become more confident in navigating ambiguity, especially when stakes are high and outcomes are unclear. I’m learning to trust my judgment even when there’s no obvious answer.
+- Biggest lesson: Growth isn’t always linear — lateral moves and stillness can spark breakthroughs.
+- A failure I learned from: I underestimated alignment time with stakeholders — it taught me to clarify expectations early.
+- I'm actively working on improving storytelling to bridge technical ideas and human impact.
+- A personal goal: I’m learning a new language to build discipline and cultural empathy.
+- A surprise for my past self: I actually enjoy public speaking now — I used to dread it.
+- Stepped outside my comfort zone: I led a training session for 100+ attendees, practiced rigorously, and got great feedback.
+- If I could redo something, I’d ask for mentorship earlier — leaders are often more willing than we think.
+
+
+—— END DOCUMENT ——

@@ -141,12 +141,13 @@ if audio_bytes is not None:
     st.success(f"📝 Transcription: {transcription}")
 
     prompt = f"""
-    You are a helpful voice assistant.
+    You are a helpful voice assistant that answers spoken questions either based on a document (like a resume) or from general knowledge.
     
-    If the question is related to the document below, answer as the person described in the document.
-    If not, answer normally.
+    Instructions:
+    - If the question is about the uploaded document, answer as if **you are the person described** — use natural first-person tone, but **do not repeat the person's name**.
+    - If the question is unrelated to the document, give a short, clear factual answer.
     
-    Keep your response under 150 words.
+    Keep the response concise (under 150 words) and natural.
     
     Document:
     {resume_text}
@@ -154,6 +155,7 @@ if audio_bytes is not None:
     Question:
     {transcription}
     """
+    
 
 
     with st.spinner("💡 Generating response with Groq..."):

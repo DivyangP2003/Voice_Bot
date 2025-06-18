@@ -13,9 +13,8 @@ GROQ_API_KEY = st.secrets["GROQ_KEY"]
 GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_TTS_URL = "https://api.groq.com/openai/v1/audio/speech"
 
-LLM_MODEL = "llama-3.1-8b-instant"
+LLM_MODEL = "llama3-70b-8192"
 TTS_MODEL = "playai-tts"
-TTS_VOICE = "Mitch-PlayAI"
 
 # Whisper model load
 @st.cache_resource
@@ -61,18 +60,8 @@ def generate_response_groq_direct(prompt):
         st.error(f"⚠️ Error generating response from Groq: {e}")
         st.stop()
 
-# --- Wait Time Parser for TTS ---
-def parse_groq_wait_time(wait_str):
-    match = re.match(r'(?:(\d+)h)?(?:(\d+)m)?(?:(\d+(?:\.\d+)?)s)?', wait_str)
-    if not match:
-        return 0
-    h = int(match.group(1)) if match.group(1) else 0
-    m = int(match.group(2)) if match.group(2) else 0
-    s = float(match.group(3)) if match.group(3) else 0
-    return h * 3600 + m * 60 + s
-
 # --- TTS with Groq ---
-def synthesize_tts_file(text, voice=TTS_VOICE, fmt="wav"):
+def synthesize_tts_file(text, voice="Mitch-PlayAI", fmt="wav"):
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
         "Content-Type": "application/json"
@@ -87,15 +76,8 @@ def synthesize_tts_file(text, voice=TTS_VOICE, fmt="wav"):
         resp = requests.post(GROQ_TTS_URL, headers=headers, json=payload)
         if resp.status_code == 429:
             msg = resp.json().get('error', {}).get('message', '')
-            wait_match = re.search(r'in ([\dhms\.]+)', msg)
-            if wait_match:
-                wait_time = parse_groq_wait_time(wait_match.group(1))
-                st.warning(f"Rate limit hit. Waiting {int(wait_time)} seconds to retry...")
-                time.sleep(wait_time)
-                return synthesize_tts_file(text, voice, fmt)
-            else:
-                st.error(f"Rate limited but could not parse wait time. Message: {msg}")
-                st.stop()
+            st.warning(f"Rate limit hit. Message: {msg}")
+            st.stop()
         resp.raise_for_status()
         return resp.content
     except Exception as e:
@@ -125,6 +107,13 @@ with st.sidebar:
         resume_text = extract_pdf_text(pdf_file)
         st.success("✅ Document uploaded and extracted.")
 
+# --- Sidebar: Voice selection ---
+with st.sidebar:
+    st.header("🗣 Voice Options")
+    selected_voice = st.selectbox("Choose a TTS voice", options=[
+        "Mitch-PlayAI", "Rachel-PlayAI", "Elliot-PlayAI"
+    ], index=0)
+
 # --- Main: Voice Input ---
 st.subheader("🎤 Record Your Question")
 audio_bytes = st_audiorec()
@@ -140,11 +129,10 @@ if audio_bytes is not None:
 
     # --- Prompt for LLM ---
     prompt = f"""
-You are a concise, helpful assistant. If the user asks something about the document content (like resume or project info), answer using it without saying 'as [name]'. Be factual, brief, and professional. Avoid referring to yourself as the person.
+You are a professional assistant helping a user describe their resume.
+The resume text is below. When answering questions, speak from the user's perspective and include facts from the resume. If the user asks about projects, respond like: 'My projects include...' without referencing yourself as an assistant.
 
-If the question is unrelated to the document, answer it normally.
-
-Document:
+Resume:
 {resume_text}
 
 User Question: {transcription}
@@ -160,7 +148,7 @@ User Question: {transcription}
         st.markdown(f"<div style='font-size:20px; padding:10px;'>{reply}</div>", unsafe_allow_html=True)
 
     with st.spinner("🔊 Generating audio with Groq TTS..."):
-        audio_response = synthesize_tts_file(reply)
+        audio_response = synthesize_tts_file(reply, voice=selected_voice)
         autoplay_audio_bytes(audio_response)
 
 st.caption("Powered by Groq LLM & TTS, Faster-Whisper STT")

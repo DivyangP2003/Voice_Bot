@@ -174,7 +174,6 @@ def autoplay_audio_bytes(audio_bytes):
         st.markdown(md, unsafe_allow_html=True)
     os.unlink(tmpfile_path)
 
-# ---- SIDEBAR ----
 with st.sidebar:
     st.markdown("## 📄 Upload PDF")
     pdf_file = st.file_uploader("Upload a document (e.g. resume)", type="pdf")
@@ -185,14 +184,8 @@ with st.sidebar:
 
     st.divider()
 
-    st.markdown("## 🎚️ Voice Settings")
-    voice = st.selectbox("Choose a voice", [
-        "Arista-PlayAI", "Atlas-PlayAI", "Basil-PlayAI", "Briggs-PlayAI",
-        "Calum-PlayAI", "Celeste-PlayAI", "Cheyenne-PlayAI", "Chip-PlayAI",
-        "Cillian-PlayAI", "Deedee-PlayAI", "Fritz-PlayAI", "Gail-PlayAI",
-        "Indigo-PlayAI", "Mamaw-PlayAI", "Mason-PlayAI", "Mikail-PlayAI",
-        "Mitch-PlayAI", "Quinn-PlayAI", "Thunder-PlayAI"
-    ], index=10)
+    # Voice is now hardcoded
+    voice = "Mitch-PlayAI"
 
 # ---- AUDIO INPUT ----
 st.markdown("## 🎤 Ask Your Voice Bot")

@@ -25,19 +25,17 @@ Ask questions about your projects, strengths, behavioral traits, and more. It’
 1. Go to [console.groq.com](https://console.groq.com)
 2. Sign up for a free account
 3. Navigate to the **API Keys** section
-4. Create and copy your key
+4. Create and copy your key and paste it in streamlit secrets keys scetion
+
+### Place your information/data in: assets/data.txt
 
 ### 🛠 Run the App
 
 ```bash
 git clone https://github.com/DivyangP2003/Voice_Bot.git
 cd Voice_Bot
+
 pip install -r requirements.txt
-
-GROQ_KEY = "your_groq_api_key"
-HUME_API_KEY = "optional"
-
-assets/data.txt
 
 streamlit run app.py
 
@@ -57,4 +55,6 @@ Try asking these questions:
 - Explore AI character development
 - Use in workshops or creative writing
 - Foster deeper AI-human interaction
+
+**Note**: This project uses Groq's free API tier. For production use, consider upgrading to a paid plan for higher rate limits. 
 

@@ -5,3 +5,4 @@ faster-whisper
 streamlit-audiorec
 openai
 gTTS
+groq

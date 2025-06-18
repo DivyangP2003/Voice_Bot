@@ -102,8 +102,8 @@ def generate_response_groq_direct(prompt):
     data = {
         "model": MODEL,
         "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 150,
-        "temperature": 0.5
+        "max_tokens": 350,
+        "temperature": 0.7
     }
 
     try:

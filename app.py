@@ -6,6 +6,7 @@ import base64
 from st_audiorec import st_audiorec
 from faster_whisper import WhisperModel
 from groq import Groq
+import time
 
 # ---- CONFIG ----
 st.set_page_config(page_title="🎙 Voice Bot", layout="centered")
@@ -72,22 +73,32 @@ def generate_response_groq_direct(prompt):
         st.stop()
 
 def synthesize_tts_file(text, voice="Fritz-PlayAI", fmt="wav"):
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "model": "playai-tts",
+        "input": text,
+        "voice": voice,
+        "response_format": fmt
+    }
+
     try:
-        response = groq_client.audio.speech.create(
-            model="playai-tts",
-            voice=voice,
-            input=text,
-            response_format=fmt
-        )
-
-        with tempfile.NamedTemporaryFile(delete=False, suffix=f".{fmt}") as f:
-            response.write_to_file(f.name)
-            f.seek(0)
-            audio_bytes = f.read()
-        return audio_bytes
-
+        resp = requests.post("https://api.groq.com/openai/v1/audio/speech", headers=headers, json=payload)
+        if resp.status_code == 429:
+            wait_time = resp.json()['error'].get('message', '').split('in ')[-1].split('s')[0]
+            st.warning(f"Rate limit hit. Waiting for {wait_time} seconds before retrying...")
+            time.sleep(float(wait_time))
+            return synthesize_tts_file(text, voice, fmt)
+        resp.raise_for_status()
+        return resp.content
+    except requests.exceptions.HTTPError as err:
+        st.error(f"TTS Error: {resp.status_code} - {resp.text}")
+        st.stop()
     except Exception as e:
-        st.error(f"Groq TTS Error: {e}")
+        st.error(f"Unexpected TTS error: {e}")
         st.stop()
 
 def autoplay_audio_bytes(audio_bytes):

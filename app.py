@@ -16,23 +16,20 @@ st.set_page_config(page_title="🎙 Voice Bot", layout="centered")
 # ---- CUSTOM CSS ----
 st.markdown("""
     <style>
+        html, body, [class*="css"] {
+            background-color: transparent;
+        }
         .main {
-            background-color: #f9fbfe;
+            background-color: #111 !important;
         }
         h1, h2, h3 {
-            color: #3a3a8e;
+            color: #e4e4e4 !important;
             font-family: 'Segoe UI', sans-serif;
         }
         .markdown-text-container {
             font-size: 16px;
-            color: #333;
+            color: #ccc !important;
             line-height: 1.6;
-        }
-        audio {
-            margin-top: 1em;
-            width: 100%;
-            border-radius: 6px;
-            outline: none;
         }
         .block-container {
             padding-top: 2rem;
@@ -42,11 +39,19 @@ st.markdown("""
         }
         .stAlert {
             border-left: 5px solid #3a3a8e !important;
-            background-color: #eef1fa;
+            background-color: #222 !important;
+            color: #ccc !important;
+        }
+        .custom-card {
+            background-color: #222;
+            color: #ddd;
+            padding: 15px;
+            border-left: 5px solid #3a3a8e;
+            border-radius: 8px;
+            margin-bottom: 15px;
         }
     </style>
 """, unsafe_allow_html=True)
-
 # ---- SECRETS ----
 HUME_API_KEY = st.secrets["HUME_API_KEY"]  # Optional/unused
 GROQ_API_KEY = st.secrets["GROQ_KEY"]
@@ -203,10 +208,11 @@ if audio_bytes is not None:
         transcription = transcribe_audio_faster_whisper(audio_bytes)
 
     st.markdown(f"""
-    <div style='background-color:#eef3fc; padding: 15px; border-left: 5px solid #3a3a8e; border-radius: 8px; margin-bottom: 15px;'>
-    <b>📝 Transcription:</b><br>{transcription}
-    </div>
+        <div class='custom-card'>
+        <b>📝 Transcription:</b><br>{transcription}
+        </div>
     """, unsafe_allow_html=True)
+
 
     prompt = f"""
     You are a helpful voice assistant that answers spoken questions either based on a document (like a resume) or from general knowledge.
@@ -229,10 +235,11 @@ if audio_bytes is not None:
 
     st.markdown("## 🧠 Assistant’s Response")
     st.markdown(f"""
-    <div style='background-color:#f2f6ff; padding: 15px; border-left: 5px solid #3a3a8e; border-radius: 8px;'>
-    {reply}
-    </div>
+        <div class='custom-card'>
+        {reply}
+        </div>
     """, unsafe_allow_html=True)
+    
 
     with st.spinner("🔈 Synthesizing speech..."):
         audio_response = synthesize_tts_file(reply, voice=voice, fmt="wav")

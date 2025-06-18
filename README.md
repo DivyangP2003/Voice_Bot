@@ -37,8 +37,8 @@ Built with ❤️ using Streamlit.
 
 ### 1. Clone the Repository
 
+```bash
 git clone https://github.com/DivyangP2003/Voice_Bot.git
-
 cd Voice_Bot
 
 ### 2. Install Dependencies

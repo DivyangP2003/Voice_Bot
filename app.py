@@ -6,7 +6,6 @@ import base64
 from st_audiorec import st_audiorec
 from faster_whisper import WhisperModel
 from groq import Groq
-import re
 import time
 
 # ---- CONFIG ----
@@ -73,17 +72,6 @@ def generate_response_groq_direct(prompt):
         st.error("⚠️ Error generating response from Groq.")
         st.stop()
 
-def parse_groq_wait_time(wait_str):
-    """Convert '3h18m12.849s' or '90s' into seconds (float)."""
-    pattern = r'(?:(\d+)h)?(?:(\d+)m)?(?:(\d+(?:\.\d+)?)s)?'
-    match = re.match(pattern, wait_str)
-    if not match:
-        return 0
-    hours = int(match.group(1)) if match.group(1) else 0
-    minutes = int(match.group(2)) if match.group(2) else 0
-    seconds = float(match.group(3)) if match.group(3) else 0.0
-    return hours * 3600 + minutes * 60 + seconds
-
 def synthesize_tts_file(text, voice="Fritz-PlayAI", fmt="wav"):
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
@@ -100,17 +88,10 @@ def synthesize_tts_file(text, voice="Fritz-PlayAI", fmt="wav"):
     try:
         resp = requests.post("https://api.groq.com/openai/v1/audio/speech", headers=headers, json=payload)
         if resp.status_code == 429:
-            msg = resp.json()['error'].get('message', '')
-            wait_str_match = re.search(r'in ([\dhms\.]+)', msg)
-            if wait_str_match:
-                wait_str = wait_str_match.group(1)
-                wait_secs = parse_groq_wait_time(wait_str)
-                st.warning(f"Rate limit hit. Waiting for {int(wait_secs)} seconds before retrying...")
-                time.sleep(wait_secs)
-                return synthesize_tts_file(text, voice, fmt)
-            else:
-                st.error(f"Rate limit hit, but couldn't parse wait time: {msg}")
-                st.stop()
+            wait_time = resp.json()['error'].get('message', '').split('in ')[-1].split('s')[0]
+            st.warning(f"Rate limit hit. Waiting for {wait_time} seconds before retrying...")
+            time.sleep(float(wait_time))
+            return synthesize_tts_file(text, voice, fmt)
         resp.raise_for_status()
         return resp.content
     except requests.exceptions.HTTPError as err:
@@ -119,7 +100,7 @@ def synthesize_tts_file(text, voice="Fritz-PlayAI", fmt="wav"):
     except Exception as e:
         st.error(f"Unexpected TTS error: {e}")
         st.stop()
-        
+
 def autoplay_audio_bytes(audio_bytes):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmpfile:
         tmpfile.write(audio_bytes)

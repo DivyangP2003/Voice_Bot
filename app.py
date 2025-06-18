@@ -7,6 +7,7 @@ from st_audiorec import st_audiorec
 from faster_whisper import WhisperModel
 import re
 import time
+import textwrap
 
 # ---- CONFIG ----
 st.set_page_config(page_title="🎙 Voice Bot", layout="centered")
@@ -109,6 +110,23 @@ def synthesize_tts_file(text, voice="Mitch-PlayAI", fmt="wav"):
         st.error(f"Unexpected TTS error: {e}")
         st.stop()
 
+def split_text_for_tts(text, max_chars=500):
+    """Split text by sentences or character limit for safe TTS playback."""
+    sentences = re.split(r'(?<=[.!?]) +', text)
+    chunks = []
+    current_chunk = ""
+
+    for sentence in sentences:
+        if len(current_chunk) + len(sentence) <= max_chars:
+            current_chunk += sentence + " "
+        else:
+            chunks.append(current_chunk.strip())
+            current_chunk = sentence + " "
+    if current_chunk:
+        chunks.append(current_chunk.strip())
+
+    return chunks
+    
 def autoplay_audio_bytes(audio_bytes):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmpfile:
         tmpfile.write(audio_bytes)
@@ -127,6 +145,7 @@ def autoplay_audio_bytes(audio_bytes):
 
     import os
     os.unlink(tmpfile_path)
+
 
 # ---- SIDEBAR ----
 with st.sidebar:

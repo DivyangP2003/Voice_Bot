@@ -6,7 +6,3 @@ streamlit-audiorec
 openai
 gTTS
 groq
-os
-tempfile
-base64
-streamlit_lottie

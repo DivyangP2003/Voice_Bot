@@ -187,15 +187,15 @@ resume_text = load_resume_text()
 # Sidebar update
 with st.sidebar:
     st.markdown("👤 **Divyang Palshetkar**")
-    st.markdown("""
-    🎓 *B.Tech, Civil Engineering* — IIT Jodhpur (Dept. Rank: 4)  
-    💼 Worked with **Ministry of Education** & **Jal Shakti** on AI + GIS projects  
-    🧠 Built smart tools — traffic analytics, groundwater modeling, scheduling bots  
-    🛠️ Full-stack + data science dev (React, Node, Python, MongoDB, REST APIs)  
-    🏆 CBSE Merit (Top 0.1%), MTSE Rank 26, JEE Advanced (Top 1%)  
-    🎉 Festival Chief, Ganeshotsav '24 | 3x Team Lead  
-    🚀 Passionate about building real-world impact with tech
-    """)
+    # st.markdown("""
+    # 🎓 *B.Tech, Civil Engineering* — IIT Jodhpur (Dept. Rank: 4)  
+    # 💼 Worked with **Ministry of Education** & **Jal Shakti** on AI + GIS projects  
+    # 🧠 Built smart tools — traffic analytics, groundwater modeling, scheduling bots  
+    # 🛠️ Full-stack + data science dev (React, Node, Python, MongoDB, REST APIs)  
+    # 🏆 CBSE Merit (Top 0.1%), MTSE Rank 26, JEE Advanced (Top 1%)  
+    # 🎉 Festival Chief, Ganeshotsav '24 | 3x Team Lead  
+    # 🚀 Passionate about building real-world impact with tech
+    # """)
     st.divider()
 
 

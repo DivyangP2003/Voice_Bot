@@ -21,10 +21,15 @@ Built with ❤️ using Streamlit.
 ## 📁 Project Structure
 .
 ├── app.py # Main Streamlit app
+
 ├── assets/
-│ └── data.txt # Your preloaded structured resume text
-├── requirements.txt # Python dependencies
-└── README.md # This file
+
+│ └── data.txt 
+
+├── requirements.txt
+
+└── README
+
 
 ---
 
@@ -42,11 +47,14 @@ pip install -r requirements.txt
 
 ### 3. Set API Keys
 Create a file at .streamlit/secrets.toml with:
+
 GROQ_KEY = "your_groq_api_key"
+
 HUME_API_KEY = "optional_but_unused"
 
 ### 4. Add Resume
 Save your pre-cleaned resume as plain text to:
+
 assets/data.txt
 
 ### 5. Run the App

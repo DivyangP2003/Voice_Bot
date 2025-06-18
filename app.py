@@ -3,142 +3,192 @@ import PyPDF2
 import requests
 import tempfile
 import base64
-import re
-import time
 from st_audiorec import st_audiorec
 from faster_whisper import WhisperModel
+from groq import Groq
+import re
+import time
 
 # ---- CONFIG ----
+st.set_page_config(page_title="🎙 Voice Bot", layout="centered")
+
+HUME_API_KEY = st.secrets["HUME_API_KEY"]  # No longer used, but kept for backup
 GROQ_API_KEY = st.secrets["GROQ_KEY"]
 GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions"
-GROQ_TTS_URL = "https://api.groq.com/openai/v1/audio/speech"
+MODEL = "llama-3.1-8b-instant"
 
-LLM_MODEL = "llama3-70b-8192"
-TTS_MODEL = "playai-tts"
-
-# Whisper model load
+# ---- WHISPER MODEL LOADING ----
 @st.cache_resource
 def load_whisper_model():
-    return WhisperModel("base", device="cpu")
+    return WhisperModel("base", device="cpu")  # Use "cuda" for GPU if available
 
 whisper_model = load_whisper_model()
 
-# UI Setup
-st.set_page_config(page_title="🎙 Voice Bot", layout="centered")
-st.title("🎙 Personalized Voice Bot (Groq Fast LLM + TTS)")
+# ---- GROQ CLIENT FOR TTS ----
+@st.cache_resource
+def load_groq_client():
+    return Groq(api_key=GROQ_API_KEY)
 
-# --- PDF Handling ---
+groq_client = load_groq_client()
+
+# ---- PAGE TITLE ----
+st.title("🎙 Personalized Voice Bot (Groq LLM + TTS + Whisper)")
+
+# ---- FUNCTIONS ----
 def extract_pdf_text(file):
-    reader = PyPDF2.PdfReader(file)
-    return "\n".join(page.extract_text() or "" for page in reader.pages)
+    pdf_reader = PyPDF2.PdfReader(file)
+    text = ""
+    for page in pdf_reader.pages:
+        page_text = page.extract_text()
+        if page_text:
+            text += page_text + "\n"
+    return text.strip()
 
-# --- Audio Transcription ---
 def transcribe_audio_faster_whisper(audio_bytes):
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmpfile:
         tmpfile.write(audio_bytes)
         tmpfile.flush()
         segments, _ = whisper_model.transcribe(tmpfile.name)
-        return " ".join(segment.text for segment in segments)
+        transcription = " ".join(segment.text for segment in segments)
+    return transcription
 
-# --- LLM Response ---
 def generate_response_groq_direct(prompt):
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
         "Content-Type": "application/json"
     }
-    payload = {
-        "model": LLM_MODEL,
+
+    data = {
+        "model": MODEL,
         "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 200,
+        "max_tokens": 150,
         "temperature": 0.5
     }
+
     try:
-        response = requests.post(GROQ_CHAT_URL, headers=headers, json=payload)
+        response = requests.post(GROQ_CHAT_URL, headers=headers, json=data)
         response.raise_for_status()
         return response.json()['choices'][0]['message']['content'].strip()
     except Exception as e:
-        st.error(f"⚠️ Error generating response from Groq: {e}")
+        st.error("⚠️ Error generating response from Groq.")
         st.stop()
 
-# --- TTS with Groq ---
-def synthesize_tts_file(text, voice="Mitch-PlayAI", fmt="wav"):
+def parse_groq_wait_time(wait_str):
+    """Convert '3h18m12.849s' or '90s' into seconds (float)."""
+    pattern = r'(?:(\d+)h)?(?:(\d+)m)?(?:(\d+(?:\.\d+)?)s)?'
+    match = re.match(pattern, wait_str)
+    if not match:
+        return 0
+    hours = int(match.group(1)) if match.group(1) else 0
+    minutes = int(match.group(2)) if match.group(2) else 0
+    seconds = float(match.group(3)) if match.group(3) else 0.0
+    return hours * 3600 + minutes * 60 + seconds
+
+def synthesize_tts_file(text, voice="Fritz-PlayAI", fmt="wav"):
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
         "Content-Type": "application/json"
     }
+
     payload = {
-        "model": TTS_MODEL,
+        "model": "playai-tts",
         "input": text,
         "voice": voice,
         "response_format": fmt
     }
+
     try:
-        resp = requests.post(GROQ_TTS_URL, headers=headers, json=payload)
+        resp = requests.post("https://api.groq.com/openai/v1/audio/speech", headers=headers, json=payload)
         if resp.status_code == 429:
-            msg = resp.json().get('error', {}).get('message', '')
-            st.warning(f"Rate limit hit. Message: {msg}")
-            st.stop()
+            msg = resp.json()['error'].get('message', '')
+            wait_str_match = re.search(r'in ([\dhms\.]+)', msg)
+            if wait_str_match:
+                wait_str = wait_str_match.group(1)
+                wait_secs = parse_groq_wait_time(wait_str)
+                st.warning(f"Rate limit hit. Waiting for {int(wait_secs)} seconds before retrying...")
+                time.sleep(wait_secs)
+                return synthesize_tts_file(text, voice, fmt)
+            else:
+                st.error(f"Rate limit hit, but couldn't parse wait time: {msg}")
+                st.stop()
         resp.raise_for_status()
         return resp.content
+    except requests.exceptions.HTTPError as err:
+        st.error(f"TTS Error: {resp.status_code} - {resp.text}")
+        st.stop()
     except Exception as e:
         st.error(f"Unexpected TTS error: {e}")
         st.stop()
-
-# --- Autoplay Audio ---
+        
 def autoplay_audio_bytes(audio_bytes):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmpfile:
         tmpfile.write(audio_bytes)
         tmpfile_path = tmpfile.name
 
     with open(tmpfile_path, "rb") as f:
-        b64 = base64.b64encode(f.read()).decode()
-        st.markdown(f"""
+        data = f.read()
+        b64 = base64.b64encode(data).decode()
+        md = f"""
             <audio controls autoplay="true">
-                <source src="data:audio/wav;base64,{b64}" type="audio/wav">
+              <source src="data:audio/wav;base64,{b64}" type="audio/wav">
+              Your browser does not support the audio element.
             </audio>
-        """, unsafe_allow_html=True)
+        """
+        st.markdown(md, unsafe_allow_html=True)
 
-# --- Sidebar: PDF Upload ---
+    import os
+    os.unlink(tmpfile_path)
+
+# ---- SIDEBAR ----
 with st.sidebar:
     st.header("📄 Upload Document (PDF)")
     pdf_file = st.file_uploader("Choose a PDF", type="pdf")
     resume_text = ""
     if pdf_file:
         resume_text = extract_pdf_text(pdf_file)
-        st.success("✅ Document uploaded and extracted.")
+        st.success("✅ Document uploaded and extracted!")
 
-# --- Sidebar: Voice selection ---
-with st.sidebar:
-    st.header("🗣 Voice Options")
-    selected_voice = st.selectbox("Choose a TTS voice", options=[
-        "Mitch-PlayAI", "Rachel-PlayAI", "Elliot-PlayAI"
-    ], index=0)
+    st.markdown("### 🎙 Choose TTS Voice")
+    voice = st.selectbox("Voice", [
+        "Arista-PlayAI", "Atlas-PlayAI", "Basil-PlayAI", "Briggs-PlayAI",
+        "Calum-PlayAI", "Celeste-PlayAI", "Cheyenne-PlayAI", "Chip-PlayAI",
+        "Cillian-PlayAI", "Deedee-PlayAI", "Fritz-PlayAI", "Gail-PlayAI",
+        "Indigo-PlayAI", "Mamaw-PlayAI", "Mason-PlayAI", "Mikail-PlayAI",
+        "Mitch-PlayAI", "Quinn-PlayAI", "Thunder-PlayAI"
+    ], index=10)
 
-# --- Main: Voice Input ---
+# ---- AUDIO INPUT ----
 st.subheader("🎤 Record Your Question")
 audio_bytes = st_audiorec()
 
 if audio_bytes is not None:
     if not resume_text:
-        st.warning("Please upload your PDF resume or document first.")
+        st.warning("Please upload your document PDF first.")
         st.stop()
 
-    with st.spinner("Transcribing audio locally..."):
+    with st.spinner("🔍 Transcribing audio locally..."):
         transcription = transcribe_audio_faster_whisper(audio_bytes)
-    st.success(f"📝 Transcribed Text: {transcription}")
+    st.success(f"📝 Transcription: {transcription}")
 
-    # --- Prompt for LLM ---
     prompt = f"""
-You are a professional assistant helping a user describe their resume.
-The resume text is below. When answering questions, speak from the user's perspective and include facts from the resume. If the user asks about projects, respond like: 'My projects include...' without referencing yourself as an assistant.
+    You are a helpful voice assistant that answers spoken questions either based on a document (like a resume) or from general knowledge.
+    
+    Instructions:
+    - If the question is about the uploaded document, answer as if **you are the person described** — use natural first-person tone, but **do not repeat the person's name**.
+    - If the question is unrelated to the document, give a short, clear factual answer.
+    
+    Keep the response concise (under 150 words) and natural.
+    
+    Document:
+    {resume_text}
+    
+    Question:
+    {transcription}
+    """
+    
 
-Resume:
-{resume_text}
 
-User Question: {transcription}
-""".strip()
-
-    with st.spinner("Generating response with Groq..."):
+    with st.spinner("💡 Generating response with Groq..."):
         reply = generate_response_groq_direct(prompt)
 
     st.success("✅ Response generated")
@@ -147,8 +197,9 @@ User Question: {transcription}
         st.markdown("### 🗣 Response")
         st.markdown(f"<div style='font-size:20px; padding:10px;'>{reply}</div>", unsafe_allow_html=True)
 
-    with st.spinner("🔊 Generating audio with Groq TTS..."):
-        audio_response = synthesize_tts_file(reply, voice=selected_voice)
-        autoplay_audio_bytes(audio_response)
+    with st.spinner("🔈 Synthesizing speech with Groq TTS..."):
+        audio_response = synthesize_tts_file(reply, voice=voice, fmt="wav")
 
-st.caption("Powered by Groq LLM & TTS, Faster-Whisper STT")
+    autoplay_audio_bytes(audio_response)
+
+st.caption("⚡ Powered by Groq (LLM + TTS), faster-whisper (STT)")

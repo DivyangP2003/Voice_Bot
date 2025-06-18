@@ -19,7 +19,7 @@ Built with ❤️ using Streamlit.
 ---
 
 ## 📁 Project Structure
-.
+
 ├── app.py # Main Streamlit app
 
 ├── assets/

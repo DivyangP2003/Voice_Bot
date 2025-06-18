@@ -1,64 +1,57 @@
-# Voice_Bot (EchoMind – Your Personal AI Voice Assistant )
+🤖 Claude Voice Bot
+A voice-enabled AI chatbot that responds like Claude using Groq's free API. Ask questions about personality, superpowers, growth areas, and more!
 
-**EchoMind** is a personalized voice-based assistant powered by Groq’s LLaMA 3.1 LLM, Faster-Whisper STT, and Groq TTS (PlayAI voices). It listens to your voice, understands your intent using your preloaded resume, and responds in a natural, human-like tone.
+✨ Features
+🎤 Voice Input: Speak your questions naturally
+🔊 Voice Output: Hear Claude's responses
+💬 Text Chat: Type or click suggested questions
+🎨 Beautiful UI: Modern, responsive design
+🔒 Privacy: API key stored locally
+📱 Mobile Friendly: Works on all devices
+🚀 Quick Start
+Get a Free Groq API Key:
 
-Built with ❤️ using Streamlit.
+Visit console.groq.com
+Sign up for a free account
+Navigate to API Keys section
+Create a new API key
+Use the Voice Bot:
 
----
+Enter your API key when prompted
+Click the microphone to speak or type your question
+Enjoy natural conversations with Claude!
+🎯 Example Questions
+Try asking these questions to see Claude's personality:
 
-## 🎯 Features
+"What should we know about your life story in a few sentences?"
+"What's your #1 superpower?"
+"What are the top 3 areas you'd like to grow in?"
+"What misconception do your coworkers have about you?"
+"How do you push your boundaries and limits?"
+🛠️ Technical Details
+Frontend: Vanilla HTML/CSS/JavaScript
+AI Model: Llama 3.1 70B via Groq API
+Voice: Web Speech API (built into browsers)
+Deployment: Static hosting on Vercel
+🔧 Local Development
+# Clone the repository
+git clone <repository-url>
+cd claude-voicebot
 
-- 🎙️ Voice input using in-browser microphone
-- 🧠 Fast transcription with `faster-whisper`
-- 💬 Smart, first-person responses powered by Groq’s LLaMA 3.1 (8B)
-- 🔊 Text-to-speech via Groq PlayAI voices
-- 📄 Preloaded resume (stored securely in backend)
-- 🧑 Behavioral and technical Q&A support
-- 🌙 Beautiful dark-themed UI with personalized sidebar
+# Install dependencies
+npm install
 
----
+# Start local server
+npm start
+🌐 Browser Support
+Voice Input: Chrome, Edge, Safari (latest versions)
+Voice Output: All modern browsers
+Chat Interface: All browsers
+📝 License
+MIT License - feel free to use and modify!
 
-## 📁 Project Structure
+🤝 Contributing
+Contributions welcome! Please feel free to submit a pull request.
 
-├── app.py # Main Streamlit app
-
-├── assets/
-
-│ └── data.txt 
-
-├── requirements.txt
-
-└── README
-
-
----
-
-## 🚀 Getting Started
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/DivyangP2003/Voice_Bot.git
-cd Voice_Bot
-
-### 2. Install Dependencies
-
-pip install -r requirements.txt
-
-### 3. Set API Keys
-Create a file at .streamlit/secrets.toml with:
-
-GROQ_KEY = "your_groq_api_key"
-
-HUME_API_KEY = "optional_but_unused"
-
-### 4. Add Resume
-Save your pre-cleaned resume as plain text to:
-
-assets/data.txt
-
-### 5. Run the App
-streamlit run app.py
-
-
+Note: This project uses Groq's free API tier. For production use, consider upgrading to a paid plan for higher rate limits.
 

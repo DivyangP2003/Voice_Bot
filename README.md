@@ -1,57 +1,60 @@
-🤖 Claude Voice Bot
-A voice-enabled AI chatbot that responds like Claude using Groq's free API. Ask questions about personality, superpowers, growth areas, and more!
+# 🤖 EchoMind – AI Voice Assistant Powered by Your Resume
 
-✨ Features
-🎤 Voice Input: Speak your questions naturally
-🔊 Voice Output: Hear Claude's responses
-💬 Text Chat: Type or click suggested questions
-🎨 Beautiful UI: Modern, responsive design
-🔒 Privacy: API key stored locally
-📱 Mobile Friendly: Works on all devices
-🚀 Quick Start
-Get a Free Groq API Key:
+**EchoMind** is a voice-enabled AI chatbot powered by Groq's blazing-fast LLaMA 3.1 model. It responds like you — using your resume, achievements, and personality — through natural conversation.
 
-Visit console.groq.com
-Sign up for a free account
-Navigate to API Keys section
-Create a new API key
-Use the Voice Bot:
+Ask questions about your projects, strengths, behavioral traits, and more. It’s like a mock interviewer that knows you well.
 
-Enter your API key when prompted
-Click the microphone to speak or type your question
-Enjoy natural conversations with Claude!
-🎯 Example Questions
-Try asking these questions to see Claude's personality:
+---
 
-"What should we know about your life story in a few sentences?"
-"What's your #1 superpower?"
-"What are the top 3 areas you'd like to grow in?"
-"What misconception do your coworkers have about you?"
-"How do you push your boundaries and limits?"
-🛠️ Technical Details
-Frontend: Vanilla HTML/CSS/JavaScript
-AI Model: Llama 3.1 70B via Groq API
-Voice: Web Speech API (built into browsers)
-Deployment: Static hosting on Vercel
-🔧 Local Development
-# Clone the repository
-git clone <repository-url>
-cd claude-voicebot
+## ✨ Features
 
-# Install dependencies
-npm install
+🎤 **Voice Input** – Record your question with one click  
+🔊 **Voice Output** – Hear your personalized AI speak in real time  
+🧠 **Resume-Aware** – Replies are based on a preloaded resume  
+💬 **Behavioral Intelligence** – Handles HR-style questions with insight  
+🎨 **Clean UI** – Modern, dark-themed Streamlit interface  
+📱 **Mobile Friendly** – Works well on phone, tablet, or desktop  
+🔐 **Secure** – Resume stays local, no file uploads
 
-# Start local server
-npm start
-🌐 Browser Support
-Voice Input: Chrome, Edge, Safari (latest versions)
-Voice Output: All modern browsers
-Chat Interface: All browsers
-📝 License
-MIT License - feel free to use and modify!
+---
 
-🤝 Contributing
-Contributions welcome! Please feel free to submit a pull request.
+## 🚀 Quick Start
 
-Note: This project uses Groq's free API tier. For production use, consider upgrading to a paid plan for higher rate limits.
+### ✅ Get a Free Groq API Key
+
+1. Go to [console.groq.com](https://console.groq.com)
+2. Sign up for a free account
+3. Navigate to the **API Keys** section
+4. Create and copy your key
+
+### 🛠 Run the App
+
+```bash
+git clone https://github.com/DivyangP2003/Voice_Bot.git
+cd Voice_Bot
+pip install -r requirements.txt
+
+GROQ_KEY = "your_groq_api_key"
+HUME_API_KEY = "optional"
+
+assets/data.txt
+
+streamlit run app.py
+
+```
+🧠 Example Questions
+
+Try asking these questions:
+
+- **"What should we know about your life story in a few sentences?"**
+- **"What's your #1 superpower?"**
+- **"What are the top 3 areas you'd like to grow in?"**
+- **"What misconception do your coworkers have about you?"**
+- **"How do you push your boundaries and limits?"**
+
+## 💡 Usage Ideas
+
+- Explore AI character development
+- Use in workshops or creative writing
+- Foster deeper AI-human interaction
 

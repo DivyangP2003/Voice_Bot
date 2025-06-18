@@ -140,20 +140,21 @@ if audio_bytes is not None:
         transcription = transcribe_audio_faster_whisper(audio_bytes)
     st.success(f"📝 Transcription: {transcription}")
 
-    prompt = f"""You are a voice assistant that can either:
-    - Act as the person described in the uploaded document (resume, report, etc.)
-    - Or answer general knowledge questions directly.
-
-    First, determine if the question relates to the document content or is general.
-    Then, respond accordingly:
-    - If document-related: Answer as if you are the person described in the document.
-    - If general: Provide a concise factual answer.
-
-    Keep your final answer under 150 words.
-
-    Document:\n\n{resume_text}\n
-    Question: {transcription}
+    prompt = f"""
+    You are a helpful voice assistant.
+    
+    If the question is related to the document below, answer as the person described in the document.
+    If not, answer normally.
+    
+    Keep your response under 150 words.
+    
+    Document:
+    {resume_text}
+    
+    Question:
+    {transcription}
     """
+
 
     with st.spinner("💡 Generating response with Groq..."):
         reply = generate_response_groq_direct(prompt)

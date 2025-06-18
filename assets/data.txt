@@ -1,0 +1,56 @@
+Divyang Deepak Palshetkar +91-9359849585
+Bachelor of Technology # palshetkar.1@iitj.ac.in
+Indian Institute of Technology Jodhpur # palshetkardivyang@gmail.com
+B21CI016 [Dept. Rank: 4] ï LinkedIn
+Education
+Degree Institute Board / University CGPA/Percentage Year
+B.Tech Indian Institute of Technology Jodhpur IIT JODHPUR 8.24 2025
+Senior Secondary Jaipuriar School, Navi Mumbai CBSE 94.6% 2019-20
+Matriculation Jindal Vidya Mandir, Salav CBSE 97.4% 2017-18
+Work Experience
+• AICOE Project, Ministry of Education May 2024 - July 2024
+Internship | Certificate IIT Jodhpur
+– Conducted an in-depth analysis of traffic patterns and vehicular movement across 16 strategic locations, processing 150+
+hours of real-time footage using TRAZER software. Extracted key metrics such as vehicle count, speed, lane discipline,
+and congestion trends to assess traffic flow efficiency.
+– Collaborated with teams to implement Generative AI-powered digital twin technology for infrastructure planning, improving
+decision-making by 40%
+– Integrated Generative Causal AI models with a web-based React & NodeJS application.
+• Jal Jeevan Mission, Ministry of Jal Shakti May 2024 - July 2024
+Internship | Certificate Rajasthan
+– Conducted water surveys and mapped 40+ dry borewells using GPS, QGIS, and Global Mapper to optimize groundwater
+recharge.Ensured compliance with environmental standards for sustainable water resource management.
+– Designed 3D filtration models and horizontal recharge techniques, improving groundwater replenishment efficiency by 30%
+– Developed REST APIs to integrate GIS data with an analytics dashboard.
+Projects
+• Inventory Optimization & Sales Analytics | Slooze Take-Home Challenge June 2025
+Python, Panda,Time-Series Analysis, Data Visualization Github
+– Developed an end-to-end data science pipeline to perform demand forecasting, inventory optimization (EOQ, reorder points),
+and ABC classification of SKUs.
+– Conducted exploratory data analysis on sales, purchase, and lead time data to uncover seasonal trends, top-performing
+products, and supplier performance insights.
+• AI-Powered Schedule Assistant Spet 2024
+React, NodeJS, ExpressJS, MongoDB, Llama3.2, Python
+– Developed a web application using the MERN stack, integrating LLAMA to generate personalized timetable schedules based
+on user preferences and tasks. .
+– The platform features user authentication (sign-in/sign-up), task and preference addition, dynamic timetable display, chatbot
+integration, and a scheduling assistant that allows users to modify their schedules using natural language prompts. Also
+implemented email-based task notification alerts.
+• Showroom Accounting Website Jun 2024
+React, NodeJS, ExpressJS, MongoDB
+– Developed an accounting website for a showroom with features like customer portfolio creation and display, customer and
+dealer payment tracking, expense management, and monthly profit analysis.
+– Created Price List section with easy product and its sub-products price search.
+– Implemented all CRUD operations and search functionalities wherever required.
+Skills
+• Technical: Python, R Language, Javascript, C, C++, HTML, CSS, React, SQL,Project Planning and Management
+• Framework and Tools: REST APIs, React, NodeJS, ExpressJS, MongoDB
+Positions of Responsibility
+• Festival Chief,Ganeshotsav ’24 IIT Jodhpur - Organized cultural events, leading a team of 200+ volunteers. 2024
+• Head,Public Relation Team, EDIFICIO 2023
+• Head,UDBHAAS Exhibtion 2022
+Miscellaneous
+• JEE-Advanced (2021),Qualified in top 1% among 1 million JEE aspirants 2021
+• District Topper, Class X 2018
+• Certificate of Merit from CBSE, for being in top 0.1 percent candidates of CBSE Board Exam 2017-18 2018
+• Rank-26, Maharashtra Talent Search Examination (MTSE) 2017

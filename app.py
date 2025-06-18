@@ -1,29 +1,38 @@
 import streamlit as st
-st.set_page_config(page_title="🎙 Voice Bot", layout="centered")
-
 import PyPDF2
 import requests
 import tempfile
 import base64
 from st_audiorec import st_audiorec
 from faster_whisper import WhisperModel
+from groq import Groq
 
 # ---- CONFIG ----
-HUME_API_KEY = st.secrets["HUME_API_KEY"]
+st.set_page_config(page_title="🎙 Voice Bot", layout="centered")
+
+HUME_API_KEY = st.secrets["HUME_API_KEY"]  # No longer used, but kept for backup
 GROQ_API_KEY = st.secrets["GROQ_KEY"]
-GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions" 
+GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions"
 MODEL = "llama-3.3-70b-versatile"
 
-# Load Whisper Model (loads once)
+# ---- WHISPER MODEL LOADING ----
 @st.cache_resource
 def load_whisper_model():
     return WhisperModel("base", device="cpu")  # Use "cuda" for GPU if available
 
 whisper_model = load_whisper_model()
 
-st.title("🎙 Personalized Voice Bot (Groq + Hume AI)")
+# ---- GROQ CLIENT FOR TTS ----
+@st.cache_resource
+def load_groq_client():
+    return Groq(api_key=GROQ_API_KEY)
 
-# FUNCTIONS
+groq_client = load_groq_client()
+
+# ---- PAGE TITLE ----
+st.title("🎙 Personalized Voice Bot (Groq LLM + TTS + Whisper)")
+
+# ---- FUNCTIONS ----
 def extract_pdf_text(file):
     pdf_reader = PyPDF2.PdfReader(file)
     text = ""
@@ -62,38 +71,30 @@ def generate_response_groq_direct(prompt):
         st.error("⚠️ Error generating response from Groq.")
         st.stop()
 
-def synthesize_tts_file(text, description=None, fmt="wav"):
-    headers = {
-        "X-Hume-Api-Key": HUME_API_KEY,
-        "Content-Type": "application/json"
-    }
-
-    payload = {
-        "utterances": [{"text": text}],
-        "format": {"type": fmt}
-    }
-
-    if description:
-        payload["utterances"][0]["description"] = description
-
+def synthesize_tts_file(text, voice="Fritz-PlayAI", fmt="wav"):
     try:
-        resp = requests.post("https://api.hume.ai/v0/tts/file",  headers=headers, json=payload)
-        resp.raise_for_status()
-        return resp.content  # Raw audio bytes
-    except requests.exceptions.HTTPError as err:
-        st.error(f"TTS Error: {resp.status_code} - {resp.text}")
-        st.stop()
+        response = groq_client.audio.speech.create(
+            model="playai-tts",
+            voice=voice,
+            input=text,
+            response_format=fmt
+        )
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix=f".{fmt}") as f:
+            response.write_to_file(f.name)
+            f.seek(0)
+            audio_bytes = f.read()
+        return audio_bytes
+
     except Exception as e:
-        st.error(f"Unexpected TTS error: {e}")
+        st.error(f"Groq TTS Error: {e}")
         st.stop()
 
 def autoplay_audio_bytes(audio_bytes):
-    # Create a temporary file to hold the audio
     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmpfile:
         tmpfile.write(audio_bytes)
         tmpfile_path = tmpfile.name
 
-    # Read and encode the file
     with open(tmpfile_path, "rb") as f:
         data = f.read()
         b64 = base64.b64encode(data).decode()
@@ -106,17 +107,27 @@ def autoplay_audio_bytes(audio_bytes):
         st.markdown(md, unsafe_allow_html=True)
 
     import os
-    os.unlink(tmpfile_path)  # Clean up temp file
+    os.unlink(tmpfile_path)
 
-# APP UI
+# ---- SIDEBAR ----
 with st.sidebar:
     st.header("📄 Upload Document (PDF)")
     pdf_file = st.file_uploader("Choose a PDF", type="pdf")
     resume_text = ""
     if pdf_file:
         resume_text = extract_pdf_text(pdf_file)
-        st.success("Document uploaded and extracted!")
+        st.success("✅ Document uploaded and extracted!")
 
+    st.markdown("### 🎙 Choose TTS Voice")
+    voice = st.selectbox("Voice", [
+        "Arista-PlayAI", "Atlas-PlayAI", "Basil-PlayAI", "Briggs-PlayAI",
+        "Calum-PlayAI", "Celeste-PlayAI", "Cheyenne-PlayAI", "Chip-PlayAI",
+        "Cillian-PlayAI", "Deedee-PlayAI", "Fritz-PlayAI", "Gail-PlayAI",
+        "Indigo-PlayAI", "Mamaw-PlayAI", "Mason-PlayAI", "Mikail-PlayAI",
+        "Mitch-PlayAI", "Quinn-PlayAI", "Thunder-PlayAI"
+    ], index=10)
+
+# ---- AUDIO INPUT ----
 st.subheader("🎤 Record Your Question")
 audio_bytes = st_audiorec()
 
@@ -125,14 +136,13 @@ if audio_bytes is not None:
         st.warning("Please upload your document PDF first.")
         st.stop()
 
-    with st.spinner("Transcribing audio locally with faster-whisper..."):
+    with st.spinner("🔍 Transcribing audio locally..."):
         transcription = transcribe_audio_faster_whisper(audio_bytes)
     st.success(f"📝 Transcription: {transcription}")
 
-    # --- SINGLE PROMPT FOR BOTH INTENT & RESPONSE ---
     prompt = f"""You are a voice assistant that can either:
     - Act as the person described in the uploaded document (resume, report, etc.)
-    - Or answer general knowledge questions directly
+    - Or answer general knowledge questions directly.
 
     First, determine if the question relates to the document content or is general.
     Then, respond accordingly:
@@ -142,11 +152,10 @@ if audio_bytes is not None:
     Keep your final answer under 150 words.
 
     Document:\n\n{resume_text}\n
-
     Question: {transcription}
     """
 
-    with st.spinner("Generating response with Groq..."):
+    with st.spinner("💡 Generating response with Groq..."):
         reply = generate_response_groq_direct(prompt)
 
     st.success("✅ Response generated")
@@ -155,9 +164,9 @@ if audio_bytes is not None:
         st.markdown("### 🗣 Response")
         st.markdown(f"<div style='font-size:20px; padding:10px;'>{reply}</div>", unsafe_allow_html=True)
 
-    with st.spinner("Synthesizing speech with Hume AI..."):
-        audio_response = synthesize_tts_file(reply, description="clear and natural tone", fmt="wav")
+    with st.spinner("🔈 Synthesizing speech with Groq TTS..."):
+        audio_response = synthesize_tts_file(reply, voice=voice, fmt="wav")
 
     autoplay_audio_bytes(audio_response)
 
-st.caption("Powered by Hume AI (TTS), faster-whisper (STT), and Groq (LLMs).")
+st.caption("⚡ Powered by Groq (LLM + TTS), faster-whisper (STT)")

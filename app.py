@@ -13,7 +13,7 @@ st.set_page_config(page_title="🎙 Voice Bot", layout="centered")
 HUME_API_KEY = st.secrets["HUME_API_KEY"]  # No longer used, but kept for backup
 GROQ_API_KEY = st.secrets["GROQ_KEY"]
 GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions"
-MODEL = "llama-3.3-70b-versatile"
+MODEL = "llama-3.1-8b-instant"
 
 # ---- WHISPER MODEL LOADING ----
 @st.cache_resource
